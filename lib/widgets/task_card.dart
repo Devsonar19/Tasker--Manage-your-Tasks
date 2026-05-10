@@ -1,28 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:tasker/widgets/task_bottom.dart';
+import '../models/task_model.dart';
+import '../services/firestore_services.dart';
 
-class TaskCard extends StatefulWidget {
-  final String title;
-  final String description;
-  final String time;
-  final bool isCompleted;
+class TaskCard extends StatelessWidget {
+  final TaskModel task;
 
-  const TaskCard({super.key, required this.title, required this.description, required this.time, required this.isCompleted});
-
-  @override
-  State<TaskCard> createState() => _TaskCardState();
-}
-
-class _TaskCardState extends State<TaskCard> {
-  late bool isCompleted;
-
-  @override
-  void initState() {
-    isCompleted = widget.isCompleted;
-    super.initState();
-  }
+  const TaskCard({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
+    final formattedTime = DateFormat('MMM d, h:mm a').format(task.date);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -43,23 +33,19 @@ class _TaskCardState extends State<TaskCard> {
           Transform.scale(
             scale: 1.3,
             child: Checkbox(
-              value: isCompleted,
+              value: task.isCompleted,
               activeColor: const Color(0xFF6FE5B1),
               checkColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               side: const BorderSide(color: Colors.grey, width: 1.5),
               onChanged: (bool? value) {
-                setState(() {
-                  isCompleted = value ?? false;
-                });
-                //will do it later
+                if (task.id != null) {
+                  FirestoreServices().toggleTaskStatus(task.id!, task.isCompleted);
+                }
               },
             ),
           ),
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,53 +54,66 @@ class _TaskCardState extends State<TaskCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      flex: 3,
                       child: Text(
-                        widget.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        task.title,
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          color: task.isCompleted ? Colors.grey : Colors.black,
+                          decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.grey),
-                        onPressed: () {
-                          //edit/delete
-                        },
-                        constraints: const BoxConstraints(),
-                      ),
+
+                    //deleting
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_horiz, color: Colors.grey),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: 'edit', child: Text('Edit Task')),
+                        const PopupMenuItem(value: 'delete', child: Text('Delete Task')),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'delete' && task.id != null) {
+                          FirestoreServices().deleteTask(task.id!);
+                        }
+
+                        else if (value == 'edit') {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.white,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                            ),
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: TaskBottom(task: task),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
-
                 Text(
-                  widget.description,
-                  maxLines: 3,
+                  task.description,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                    height: 1.4,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.black54, height: 1.4),
                 ),
-
                 const SizedBox(height: 16),
-
                 Row(
                   children: [
-                    Icon(Icons.access_time_filled, size: 16, color: Colors.red[300]),
+                    Icon(Icons.access_time_filled, size: 16, color: task.isCompleted ? Colors.grey : Colors.red[300]),
                     const SizedBox(width: 4),
                     Text(
-                      widget.time,
+                      formattedTime,
                       style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red[300],
-                          fontWeight: FontWeight.bold
+                        fontSize: 12,
+                        color: task.isCompleted ? Colors.grey : Colors.red[300],
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
