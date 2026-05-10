@@ -6,6 +6,8 @@ class ErrorDialog {
 
     String cleanMessage = errorMessage.replaceAll('Exception: ', '');
 
+    cleanMessage = cleanMessage.replaceAll(RegExp(r'\[.*?\]\s*'), '');
+
     if (errorMessage.contains('SocketException') ||
         errorMessage.contains('network-request-failed') ||
         errorMessage.contains('unavailable')) {
