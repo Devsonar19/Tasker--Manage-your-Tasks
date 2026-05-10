@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/task_model.dart';
 import '../services/firestore_services.dart';
+import '../utils/error_dialog.dart';
 
 class TaskBottom extends StatefulWidget {
   final TaskModel? task;
@@ -44,17 +45,11 @@ class _TaskBottomState extends State<TaskBottom> {
         }
 
         if (!mounted) return;
-
         Navigator.of(context).pop();
 
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Failed to save task: $e"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ErrorDialog.show(context, e);
       }
     }
   }

@@ -70,39 +70,75 @@ class HomeView extends StatelessWidget {
             children: [
               const QuoteCard(),
               const SizedBox(height: 24),
-      
+
               StreamBuilder<List<TaskModel>>(
                   stream: FirestoreServices().getTasks(isCompleted: false),
                   builder: (context, asyncSnapshot) {
-                    final pending = asyncSnapshot.data?.length ?? 0;
-                    final today = DateFormat('EEEE, MMM d').format(DateTime.now());
-      
+                    if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: CircularProgressIndicator(color: Color(0xFF6FE5B1)),
+                      ));
+                    }
+
+                    if (asyncSnapshot.hasError) {
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          "Could not load tasks. Check connection.",
+                          style: TextStyle(color: Colors.red[800]),
+                        ),
+                      );
+                    }
+
+                    final now = DateTime.now();
+                    final allPending = asyncSnapshot.data ?? [];
+
+                    final todayTasks = allPending.where((task) {
+                      return task.date.year == now.year &&
+                          task.date.month == now.month &&
+                          task.date.day == now.day;
+                    }).toList();
+
+                    final pendingCount = todayTasks.length;
+                    final todayStr = DateFormat('EEEE, MMM d').format(now);
+
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(today, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
-                        const SizedBox(height: 4),
-      
-                        Text("$pending pending tasks", style: const TextStyle(fontSize: 16, color: Colors.black54)),
-                        const SizedBox(height: 24),
-      
-      
-                        const Text("Today’s Tasks", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
-                        const SizedBox(height: 16),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(todayStr, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
+                          const SizedBox(height: 4),
 
+                          Text("$pendingCount pending tasks for today", style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                          const SizedBox(height: 24),
 
+                          const Text("Today’s Tasks", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+                          const SizedBox(height: 16),
 
-                        if (asyncSnapshot.connectionState == ConnectionState.waiting)
-                          const Center(child: CircularProgressIndicator(color: Color(0xFF6FE5B1)))
-                        else if (asyncSnapshot.data == null || asyncSnapshot.data!.isEmpty)
-                          const Center(child: Text("No tasks for today. You're all caught up!"))
-                        else if(asyncSnapshot.hasError)
-                          Center(child: Text(asyncSnapshot.error.toString()))
-                        else
-                          ...asyncSnapshot.data!.map((task) => TaskCard(task: task)),
-      
-                        const SizedBox(height: 80),
-                      ]
+                          if (todayTasks.isEmpty)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: const Text(
+                                "No tasks for today. You're all caught up!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
+                          else
+                            ...todayTasks.map((task) => TaskCard(task: task)),
+
+                          const SizedBox(height: 80),
+                        ]
                     );
                   }
               ),

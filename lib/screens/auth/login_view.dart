@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasker/screens/auth/register_view.dart';
 import '../../services/auth/auth_services.dart';
+import '../../utils/error_dialog.dart';
 import '../../widgets/custom_textfield.dart';
 import '../main_layout.dart';
 
@@ -34,11 +35,9 @@ class _LoginViewState extends State<LoginView> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
-          );
+          ErrorDialog.show(context, e);
         }
-      } finally {
+      } finally{
         if (mounted) setState(() => isLoading = false);
       }
     }
