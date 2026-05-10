@@ -4,7 +4,7 @@ A modern cross-platform Task Manager application built with Flutter and Firebase
 Tasker helps users manage daily tasks efficiently with authentication, real-time database support, and motivational quotes integration.
 
 ## Download Here
-<p align="center">
+<p>
   <a href="https://github.com/Devsonar19/Tasker--Manage-your-Tasks/releases/tag/v1.0.0">
     <img src="https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android" />
   </a>
