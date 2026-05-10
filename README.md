@@ -1,17 +1,68 @@
-# tasker
+# Tasker - Flutter Task Manager App
 
-A new Flutter Based tasks app
+A modern cross-platform Task Manager application built with Flutter and Firebase.  
+Tasker helps users manage daily tasks efficiently with authentication, real-time database support, and motivational quotes integration.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ Features
 
-A few resources to get you started if this is your first Flutter project:
+### 🔐 User Authentication
+Implemented using Firebase Authentication.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- User Sign Up
+- User Login
+- Secure Logout Functionality
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### ✅ Task Management
+Implemented using Cloud Firestore.
+
+Users can:
+
+- Add Tasks
+- Edit Tasks
+- Delete Tasks
+- Mark Tasks as Completed
+
+Each task contains:
+
+- Title
+- Description
+- Date
+- Status
+
+### 🌐 REST API Integration
+Integrated motivational quotes using the Quotable API.
+
+API Used:
+https://dummyjson.com/quotes/random
+
+Displays:
+
+- Quote
+- Author
+
+---
+
+## 📱 Screenshots
+<p>
+  <img src="assets/dashboard_home.png" width="30%" />
+  <img src="assets/register_view.png" width="30%" />
+  <img src="assets/add_task.png" width="30%" />
+</p>
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- Flutter
+- Dart
+
+### Backend & Database
+- Firebase Authentication
+- Cloud Firestore
+
+### API Integration
+- REST API
+- HTTP Package
